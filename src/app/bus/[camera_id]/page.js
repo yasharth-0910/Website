@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeftIcon, UsersIcon, ClockIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Line } from 'react-chartjs-2';
 import {
@@ -32,7 +32,6 @@ ChartJS.register(
 
 export default function BusDetail() {
   const params = useParams();
-  const router = useRouter();
   const [busData, setBusData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,7 +46,7 @@ export default function BusDetail() {
     occupancyTrend: 0,
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsRefreshing(true);
       const res = await fetch(
@@ -125,13 +124,13 @@ export default function BusDetail() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [params.camera_id]);
 
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
-  }, [params.camera_id]);
+  }, [fetchData]);
 
   if (error) {
     return (
